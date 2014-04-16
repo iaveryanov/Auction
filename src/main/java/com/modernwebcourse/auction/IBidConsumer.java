@@ -1,6 +1,9 @@
 package com.modernwebcourse.auction;
 
-public interface IAuction {
+/**
+ * Bid receiver
+ */
+public interface IBidConsumer {
 
     void start();
 

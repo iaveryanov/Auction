@@ -4,7 +4,10 @@ import com.modernwebcourse.auction.domain.Bid;
 
 import java.util.concurrent.BlockingQueue;
 
-public interface IBidEngine {
+/**
+ * Bid Engine
+ */
+public interface IBidProducer {
 
     public BlockingQueue<Bid> getQueue();
 

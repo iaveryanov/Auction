@@ -7,16 +7,20 @@ public class Money implements Comparable<Money> {
 
     private final BigDecimal amount;
 
-    public Money(double amount) {
+    private Money(double amount) {
         this.amount = new BigDecimal(amount);
     }
 
+    public static Money of(double amount) {
+        return new Money(amount);
+    }
+
     public Money add(double val) {
-        return new Money(amount.add(new BigDecimal(val)).doubleValue());
+        return Money.of(amount.add(new BigDecimal(val)).doubleValue());
     }
 
     public Money subtract(double val) {
-        return new Money(amount.subtract(new BigDecimal(val)).doubleValue());
+        return Money.of(amount.subtract(new BigDecimal(val)).doubleValue());
     }
 
     public double get() {

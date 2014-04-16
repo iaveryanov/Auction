@@ -1,6 +1,6 @@
 package com.modernwebcourse.auction.emulator;
 
-import com.modernwebcourse.auction.IBidEngine;
+import com.modernwebcourse.auction.IBidProducer;
 import com.modernwebcourse.auction.common.Money;
 import com.modernwebcourse.auction.dao.IBidDao;
 import com.modernwebcourse.auction.dao.IProductDao;
@@ -17,7 +17,7 @@ import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.*;
 
-public class BidEngineEmulator implements IBidEngine {
+public class BidProducerEmulator implements IBidProducer {
 
     private static final int TIMER_PERIOD_MS = 1000;
     public static final int MAX_RANDOM_DELTA = 10;
@@ -31,7 +31,7 @@ public class BidEngineEmulator implements IBidEngine {
 
     private final Random random = new Random();
 
-    public BidEngineEmulator() {
+    public BidProducerEmulator() {
         this.queue = new LinkedBlockingQueue<>();
         this.timer = Executors.newScheduledThreadPool(1);
     }
@@ -97,7 +97,7 @@ public class BidEngineEmulator implements IBidEngine {
         double base = Math.max(product.minimalPrice.get(),
                 maxOpt.isPresent() ? maxOpt.get().amount.get() : 0);
 
-        return new Money(base + delta);
+        return Money.of(base + delta);
     }
 
     /**

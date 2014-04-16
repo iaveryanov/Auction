@@ -26,8 +26,9 @@ public class BidDao implements IBidDao {
 
     @Override
     public List<Bid> selectByProductId(int productId) {
-        return DB.BIDS.values().stream()
+        return DB.BIDS.values()
+                .stream()
                 .filter((b) -> b.product.id ==  productId)
-                .collect(Collectors.toCollection(ArrayList::new));
+                .collect(Collectors.toList());
     }
 }

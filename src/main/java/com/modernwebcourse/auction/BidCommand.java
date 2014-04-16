@@ -16,8 +16,6 @@ public class BidCommand {
 
     private final Bid bid;
 
-    //    IProductDao productDao = new ProductDao();
-//    IUserDao userDao = new UserDao();
     private final IBidDao bidDao = new BidDao();
     private final EmailSender emailSender = new EmailSender();
 
@@ -38,12 +36,7 @@ public class BidCommand {
         this.bid = bid;
     }
 
-    // here all business logic
-    //
-    // insert bid
-    // не закончился ли аукцион на этот продукт?
-    //
-    //
+    // here all business logic:
     // if amount < minimalPrice then send Sorry_email
     // if amount >= reservedPrice then send Winner_email and close auction for this product
     // get all bids for this product, if amount > currentMaxAmountBid
@@ -51,7 +44,7 @@ public class BidCommand {
     public BidResult process() {
         if (LocalDateTime.now().isAfter(bid.product.auctionEndTime)) {
             // auction is off by endTime
-            System.out.println("auction is off by endTime");
+//            System.out.println("auction is off by endTime");
             return BidResult.ERR_AUCTION_EXPIRED;
         }
 
@@ -72,7 +65,7 @@ public class BidCommand {
             bid.isWinning = true; // save in db
             bidDao.insert(bid);
             bid.product.quantity = bid.product.quantity - bid.desiredQuantity;
-            System.out.println("............send Winner_email (" + bid.product.quantity + ")");
+            System.out.println("send Winner_email (" + bid.product.quantity + ")");
             emailSender.send(bid.user, EmailSender.EmailType.Winning);
             return BidResult.OK_GREATER_RESERVED_PRICE;
         }
@@ -85,10 +78,10 @@ public class BidCommand {
             if (bid.amount.get() > leadBidOpt.get().amount.get()) {
                 bidDao.insert(bid);
                 // create set users for Overbidded_email with flag getOverbidNotifications=true
-                getNotificationSet(bidList).stream().filter((u) -> !u.equals(bid.user)) // don't send himself
-                        .forEach((u) -> {
-                            emailSender.send(u, EmailSender.EmailType.Overbidded);
-                        });
+                getNotificationSet(bidList)
+                        .stream()
+                        .filter((u) -> !u.equals(bid.user)) // don't send himself
+                        .forEach((u) -> emailSender.send(u, EmailSender.EmailType.Overbidded));
                 return BidResult.OK_OVERBIDDED;
             } else {
                 // less then current leading bid
@@ -102,14 +95,19 @@ public class BidCommand {
     }
 
     private Optional<Bid> getLeadBid(List<Bid> bidList) {
-        return bidList.stream().max((o1, o2) -> o1.compareTo(o2));
+        return bidList
+                .stream()
+                .max((o1, o2) -> o1.compareTo(o2));
     }
 
     // get all bids for this product, if amount > currentMaxAmountBid
     // then send Overbidded_email to all users with flag getOverbidNotifications=true
     private Set<User> getNotificationSet(List<Bid> bidList) {
-        return bidList.stream().filter((b) -> b.user.getOverbidNotifications // send only with flag
-                && b.amount.get() < b.product.reservedPrice.get()) // don't see to winning
-                .map((b) -> b.user).collect(Collectors.toCollection(HashSet::new));
+        return bidList
+                .stream()
+                .filter((b) -> b.user.getOverbidNotifications // send only with flag
+                        && b.amount.get() < b.product.reservedPrice.get()) // don't see to winning
+                .map((b) -> b.user)
+                .collect(Collectors.toSet());
     }
 }
